@@ -228,17 +228,21 @@
     let animationInterval;
     let slowMotion = false;
 
-    massBlueSlider.value = massBlue;
-    massBlueValue.textContent = massBlue;
+    function updateSliders() {
+        massBlueSlider.value = massBlue;
+        massBlueValue.textContent = massBlue;
 
-    massRedSlider.value = massRed;
-    massRedValue.textContent = massRed;
+        massRedSlider.value = massRed;
+        massRedValue.textContent = massRed;
 
-    velocityBlueSlider.value = velocityBlue;
-    velocityBlueValue.textContent = velocityBlue;
+        velocityBlueSlider.value = velocityBlue;
+        velocityBlueValue.textContent = velocityBlue;
 
-    restitutionSlider.value = restitution;
-    restitutionValue.textContent = restitution;
+        restitutionSlider.value = restitution;
+        restitutionValue.textContent = restitution;
+    }
+
+    updateSliders();
 
     function updateSizes() {
         ballBlue.radius = 20 + (massBlue - 1) * 3;
@@ -327,23 +331,6 @@
     };
 
     document.getElementById('reset-button').onclick = () => {
-        massBlue = Math.floor(Math.random() * 10) + 1; // Valor aleatorio entre 1 y 10
-        massRed = Math.floor(Math.random() * 10) + 1; // Valor aleatorio entre 1 y 10
-        velocityBlue = Math.floor(Math.random() * 20) + 1; // Valor aleatorio entre 1 y 20
-        restitution = 1; // Coeficiente de restitución fijo en 1
-
-        massBlueSlider.value = massBlue;
-        massBlueValue.textContent = massBlue;
-
-        massRedSlider.value = massRed;
-        massRedValue.textContent = massRed;
-
-        velocityBlueSlider.value = velocityBlue;
-        velocityBlueValue.textContent = velocityBlue;
-
-        restitutionSlider.value = restitution;
-        restitutionValue.textContent = restitution;
-
         ballBlue.x = 50;
         ballRed.x = 400;
         ballBlue.velocityX = 0;
@@ -407,6 +394,13 @@
         validateQuestion('q3', 'Falso');
         validateQuestion('q4', 'Verdadero');
         validateQuestion('q5', 'Elástico');
+
+        // Resorteo de los valores de los sliders
+        massBlue = Math.floor(Math.random() * 10) + 1; // Valor aleatorio entre 1 y 10
+        massRed = Math.floor(Math.random() * 10) + 1; // Valor aleatorio entre 1 y 10
+        velocityBlue = Math.floor(Math.random() * 20) + 1; // Valor aleatorio entre 1 y 20
+        updateSliders();
+        updateSizes();
     }
 
     function validateAnswer(id, givenValue, correctValue) {
