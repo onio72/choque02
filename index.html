@@ -38,7 +38,7 @@
         table {
             margin: 10px auto;
             border-collapse: collapse;
-            width: 60%;
+            width: 50%;
         }
         th, td {
             border: 1px solid black;
@@ -51,7 +51,7 @@
         .question {
             text-align: left;
             margin: 20px auto;
-            width: 60%;
+            width: 50%;
         }
         .question label {
             display: block;
@@ -255,15 +255,16 @@
                         if (posRed < 600) {
                             animationFrame = requestAnimationFrame(moveRed);
                         } else {
-                            ballRed.style.display = 'none';
+                            ballRed.style.transition = 'opacity 0.5s linear';
+                            ballRed.style.opacity = 0;
                         }
                     }
                     moveRed();
                 } else {
-                    ballRed.style.transition = 'left 1s linear';
+                    ballRed.style.transition = 'left 1s linear, opacity 0.5s linear';
                     ballRed.style.left = '650px';
                     setTimeout(() => {
-                        ballRed.style.display = 'none';
+                        ballRed.style.opacity = 0;
                     }, 1000);
                 }
             } else {
@@ -284,7 +285,7 @@
         ballBlue.textContent = `${velocityBlue} m/s`;
         ballRed.textContent = `0 m/s`;
         ballRed.style.transition = 'none';
-        ballRed.style.display = 'block';
+        ballRed.style.opacity = 1;
     }
 
     function slowMotion() {
