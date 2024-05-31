@@ -38,7 +38,7 @@
         table {
             margin: 10px auto;
             border-collapse: collapse;
-            width: 50%;
+            width: 60%;
         }
         th, td {
             border: 1px solid black;
@@ -51,7 +51,7 @@
         .question {
             text-align: left;
             margin: 20px auto;
-            width: 50%;
+            width: 60%;
         }
         .question label {
             display: block;
@@ -94,15 +94,14 @@
 </div>
 
 <div id="controls">
-    <button onclick="startAnimation()">Animar</button>
-    <button onclick="pauseAnimation()">Pausa</button>
-    <button onclick="resetAnimation()">Reiniciar</button>
-    <button onclick="slowMotion()">Ralentizar</button>
+    <button id="animate-button" onclick="startAnimation()">Animar</button>
+    <button id="pause-button" onclick="pauseAnimation()">Pausa</button>
+    <button id="reset-button" onclick="resetAnimation()">Reiniciar</button>
+    <button id="slow-motion-button" onclick="toggleSlowMotion()">Ralentizar</button>
 </div>
 
 <div id="simulator">
-    <div id="ball-blue" class="ball" style="left: 50px; width: 50px; height: 50px;">10 m/s</div>
-    <div id="ball-red" class="ball" style="left: 300px; width: 50px; height: 50px;">0 m/s</div>
+    <canvas id="animationCanvas"></canvas>
 </div>
 
 <div id="calculations">
@@ -192,105 +191,148 @@
 <button onclick="checkAnswers()" style="display: block; margin: 20px auto;">Enviar</button>
 
 <footer>
-    Antonio González García
+    Antonio González García<br>
+    <script>
+        document.write(new Date().toLocaleString());
+    </script>
 </footer>
 
 <script>
-    const ballBlue = document.getElementById('ball-blue');
-    const ballRed = document.getElementById('ball-red');
-    let massBlue = parseFloat(document.getElementById('mass-blue').value);
-    let massRed = parseFloat(document.getElementById('mass-red').value);
-    let velocityBlue = parseFloat(document.getElementById('velocity-blue').value);
-    let animationFrame;
-    let slowMotionActive = false;
+    const canvas = document.getElementById('animationCanvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = 600;
+    canvas.height = 200;
 
-    document.getElementById('mass-blue').addEventListener('input', function() {
-        massBlue = parseFloat(this.value);
-        document.getElementById('mass-blue-val').textContent = massBlue;
-        updateBallSizes();
-    });
+    const massBlueSlider = document.getElementById('mass-blue');
+    const massRedSlider = document.getElementById('mass-red');
+    const velocityBlueSlider = document.getElementById('velocity-blue');
+    const massBlueValue = document.getElementById('mass-blue-val');
+    const massRedValue = document.getElementById('mass-red-val');
+    const velocityBlueValue = document.getElementById('velocity-blue-val');
+    const slowMotionButton = document.getElementById('slow-motion-button');
 
-    document.getElementById('mass-red').addEventListener('input', function() {
-        massRed = parseFloat(this.value);
-        document.getElementById('mass-red-val').textContent = massRed;
-        updateBallSizes();
-    });
+    let massBlue = parseInt(massBlueSlider.value);
+    let massRed = parseInt(massRedSlider.value);
+    let velocityBlue = parseInt(velocityBlueSlider.value);
+    let velocityRed = 0;
+    let animationInterval;
+    let slowMotion = false;
 
-    document.getElementById('velocity-blue').addEventListener('input', function() {
-        velocityBlue = parseFloat(this.value);
-        document.getElementById('velocity-blue-val').textContent = velocityBlue;
-        ballBlue.textContent = `${velocityBlue} m/s`;
-    });
+    massBlueSlider.oninput = () => {
+        massBlue = parseInt(massBlueSlider.value);
+        massBlueValue.textContent = massBlue;
+        updateSizes();
+    };
 
-    function updateBallSizes() {
-        const sizeBlue = 50 + (massBlue / 10) * 15;
-        const sizeRed = 50 + (massRed / 10) * 15;
-        ballBlue.style.width = sizeBlue + 'px';
-        ballBlue.style.height = sizeBlue + 'px';
-        ballRed.style.width = sizeRed + 'px';
-        ballRed.style.height = sizeRed + 'px';
+    massRedSlider.oninput = () => {
+        massRed = parseInt(massRedSlider.value);
+        massRedValue.textContent = massRed;
+        updateSizes();
+    };
+
+    velocityBlueSlider.oninput = () => {
+        velocityBlue = parseInt(velocityBlueSlider.value);
+        velocityBlueValue.textContent = velocityBlue;
+    };
+
+    function updateSizes() {
+        ballBlue.radius = 20 + (massBlue - 1) * 3;
+        ballRed.radius = 20 + (massRed - 1) * 3;
+    }
+
+    const ballBlue = {
+        x: 50,
+        y: canvas.height / 2,
+        radius: 35,
+        color: 'blue',
+        velocityX: 0
+    };
+
+    const ballRed = {
+        x: 400,
+        y: canvas.height / 2,
+        radius: 35,
+        color: 'red',
+        velocityX: 0
+    };
+
+    function drawBall(ball) {
+        ctx.beginPath();
+        ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+        ctx.fillStyle = ball.color;
+        ctx.fill();
+        ctx.closePath();
+    }
+
+    function drawGrid() {
+        ctx.strokeStyle = '#ddd';
+        for (let i = 0; i < canvas.width; i += 20) {
+            ctx.beginPath();
+            ctx.moveTo(i, 0);
+            ctx.lineTo(i, canvas.height);
+            ctx.stroke();
+        }
+        for (let j = 0; j < canvas.height; j += 20) {
+            ctx.beginPath();
+            ctx.moveTo(0, j);
+            ctx.lineTo(canvas.width, j);
+            ctx.stroke();
+        }
+    }
+
+    function update() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawGrid();
+        drawBall(ballBlue);
+        drawBall(ballRed);
+
+        ballBlue.x += ballBlue.velocityX;
+        ballRed.x += ballRed.velocityX;
+
+        if (ballBlue.x + ballBlue.radius >= ballRed.x - ballRed.radius) {
+            const finalVelocityRed = (2 * massBlue * velocityBlue) / (massBlue + massRed);
+            ballRed.velocityX = finalVelocityRed;
+            ballBlue.velocityX = 0;
+        }
+
+        if (ballRed.x - ballRed.radius > canvas.width) {
+            clearInterval(animationInterval);
+        }
+
+        ctx.fillStyle = 'black';
+        ctx.fillText(`${ballBlue.velocityX.toFixed(2)} m/s`, ballBlue.x - 20, ballBlue.y - ballBlue.radius - 10);
+        ctx.fillText(`${ballRed.velocityX.toFixed(2)} m/s`, ballRed.x - 20, ballRed.y - ballRed.radius - 10);
     }
 
     function startAnimation() {
-        ballBlue.textContent = `${velocityBlue} m/s`;
-        ballRed.textContent = `0 m/s`;
-        let posBlue = 50;
-        let posRed = 300;
-        const speedBlue = slowMotionActive ? velocityBlue / 10 : velocityBlue;
-
-        function animate() {
-            posBlue += speedBlue;
-            ballBlue.style.left = posBlue + 'px';
-
-            if (posBlue + parseFloat(ballBlue.style.width) >= posRed) {
-                const finalVelocityRed = (2 * massBlue * velocityBlue) / (massBlue + massRed);
-                ballRed.textContent = `${finalVelocityRed.toFixed(2)} m/s`;
-                ballBlue.textContent = `0 m/s`;
-
-                if (slowMotionActive) {
-                    const speedRed = finalVelocityRed / 10;
-                    function moveRed() {
-                        posRed += speedRed;
-                        ballRed.style.left = posRed + 'px';
-                        if (posRed < 600) {
-                            animationFrame = requestAnimationFrame(moveRed);
-                        } else {
-                            ballRed.style.transition = 'opacity 0.5s linear';
-                            ballRed.style.opacity = 0;
-                        }
-                    }
-                    moveRed();
-                } else {
-                    ballRed.style.transition = 'left 1s linear, opacity 0.5s linear';
-                    ballRed.style.left = '650px';
-                    setTimeout(() => {
-                        ballRed.style.opacity = 0;
-                    }, 1000);
-                }
-            } else {
-                animationFrame = requestAnimationFrame(animate);
-            }
-        }
-        animate();
+        ballBlue.velocityX = velocityBlue;
+        ballRed.velocityX = velocityRed;
+        clearInterval(animationInterval);
+        const intervalTime = slowMotion ? 100 : 20;
+        animationInterval = setInterval(update, intervalTime);
     }
 
-    function pauseAnimation() {
-        cancelAnimationFrame(animationFrame);
-    }
+    document.getElementById('animate-button').onclick = () => {
+        startAnimation();
+    };
 
-    function resetAnimation() {
-        cancelAnimationFrame(animationFrame);
-        ballBlue.style.left = '50px';
-        ballRed.style.left = '300px';
-        ballBlue.textContent = `${velocityBlue} m/s`;
-        ballRed.textContent = `0 m/s`;
-        ballRed.style.transition = 'none';
-        ballRed.style.opacity = 1;
-    }
+    document.getElementById('pause-button').onclick = () => {
+        clearInterval(animationInterval);
+    };
 
-    function slowMotion() {
-        slowMotionActive = !slowMotionActive;
-        resetAnimation();
+    document.getElementById('reset-button').onclick = () => {
+        ballBlue.x = 50;
+        ballRed.x = 400;
+        ballBlue.velocityX = 0;
+        ballRed.velocityX = 0;
+        slowMotion = false;
+        slowMotionButton.textContent = 'Ralentizar';
+        update();
+    };
+
+    function toggleSlowMotion() {
+        slowMotion = !slowMotion;
+        slowMotionButton.textContent = slowMotion ? 'Velocidad Normal' : 'Ralentizar';
         startAnimation();
     }
 
@@ -361,6 +403,8 @@
             question.insertAdjacentHTML('afterend', ' <span class="result-ko">&#10008;</span>');
         }
     }
+
+    update();
 </script>
 
 </body>
