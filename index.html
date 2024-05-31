@@ -296,7 +296,7 @@
         }
 
         if (ballRed.x - ballRed.radius > canvas.width) {
-            clearInterval(animationInterval);
+            ballRed.x += ballRed.velocityX;
         }
 
         ctx.fillStyle = 'black';
