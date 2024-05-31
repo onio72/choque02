@@ -6,6 +6,7 @@
     <style>
         body {
             font-family: Arial, sans-serif;
+            text-align: center;
         }
         #simulator {
             position: relative;
@@ -37,7 +38,7 @@
         table {
             margin: 10px auto;
             border-collapse: collapse;
-            width: 80%;
+            width: 60%;
         }
         th, td {
             border: 1px solid black;
@@ -50,7 +51,7 @@
         .question {
             text-align: left;
             margin: 20px auto;
-            width: 80%;
+            width: 60%;
         }
         .question label {
             display: block;
@@ -69,11 +70,14 @@
             margin-top: 50px;
             font-size: 14px;
         }
+        #calculations {
+            text-align: center;
+        }
     </style>
 </head>
 <body>
 
-<h1 style="text-align: center;">Tema 10. Leyes de Newton. Choques (II)</h1>
+<h1>Tema 10. Leyes de Newton. Choques (II)</h1>
 
 <div id="controls">
     <label for="mass-blue">Masa Bola Azul:</label>
@@ -87,7 +91,9 @@
     <label for="velocity-blue">Velocidad Bola Azul:</label>
     <input type="range" id="velocity-blue" min="1" max="20" value="10">
     <span id="velocity-blue-val">10</span> m/s
+</div>
 
+<div id="controls">
     <button onclick="startAnimation()">Animar</button>
     <button onclick="pauseAnimation()">Pausa</button>
     <button onclick="resetAnimation()">Reiniciar</button>
@@ -99,7 +105,7 @@
     <div id="ball-red" class="ball" style="left: 300px; width: 50px; height: 50px;">0 m/s</div>
 </div>
 
-<div>
+<div id="calculations">
     <p>Realiza los cálculos adecuados redondeando hasta la centésima y completa la tabla. Para comprobar si tus cálculos son correctos pulsa el botón Enviar.</p>
     <table>
         <tr>
@@ -144,8 +150,6 @@
     </table>
 </div>
 
-<button onclick="checkAnswers()">Enviar</button>
-
 <div class="question">
     <p style="font-size: 18px;">Preguntas</p>
     <label>1. El momento lineal de cada bola antes de la colisión es igual al momento lineal de cada bola después de la colisión.
@@ -184,6 +188,8 @@
         </select>
     </label>
 </div>
+
+<button onclick="checkAnswers()" style="display: block; margin: 20px auto;">Enviar</button>
 
 <footer>
     Antonio González García
@@ -248,12 +254,17 @@
                         ballRed.style.left = posRed + 'px';
                         if (posRed < 600) {
                             animationFrame = requestAnimationFrame(moveRed);
+                        } else {
+                            ballRed.style.display = 'none';
                         }
                     }
                     moveRed();
                 } else {
                     ballRed.style.transition = 'left 1s linear';
-                    ballRed.style.left = '600px';
+                    ballRed.style.left = '650px';
+                    setTimeout(() => {
+                        ballRed.style.display = 'none';
+                    }, 1000);
                 }
             } else {
                 animationFrame = requestAnimationFrame(animate);
@@ -273,6 +284,7 @@
         ballBlue.textContent = `${velocityBlue} m/s`;
         ballRed.textContent = `0 m/s`;
         ballRed.style.transition = 'none';
+        ballRed.style.display = 'block';
     }
 
     function slowMotion() {
