@@ -10,11 +10,11 @@
         }
         #simulator {
             position: relative;
-            width: 600px;
-            height: 200px;
+            width: 800px;
+            height: 300px;
             border: 1px solid black;
             margin: 20px auto;
-            background: linear-gradient(to bottom, #ddd, #fff);
+            background: #f0f0f0;
         }
         .ball {
             position: absolute;
@@ -200,8 +200,8 @@
 <script>
     const canvas = document.getElementById('animationCanvas');
     const ctx = canvas.getContext('2d');
-    canvas.width = 600;
-    canvas.height = 200;
+    canvas.width = 800;
+    canvas.height = 300;
 
     const massBlueSlider = document.getElementById('mass-blue');
     const massRedSlider = document.getElementById('mass-red');
