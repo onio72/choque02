@@ -72,6 +72,7 @@
         }
         #calculations {
             text-align: center;
+            font-size: smaller;
         }
         .hidden {
             display: none;
@@ -112,7 +113,8 @@
 </div>
 
 <div id="calculations">
-    <p>Realiza los cálculos adecuados redondeando hasta la centésima y completa la tabla. Para comprobar si tus cálculos son correctos pulsa el botón Enviar.</p>
+    <p>Realiza los cálculos adecuados redondeando hasta la centésima y completa la tabla. Usa el punto como separador decimal. Para comprobar si tus cálculos son correctos pulsa el botón Enviar.</p>
+    <p>Calcula los momentos lineales de ambas bolas y del conjunto, antes y después de la colisión.</p>
     <table>
         <tr>
             <th></th>
@@ -133,7 +135,7 @@
             <td><input class="input-box" id="pT-despues"> kg.m/s</td>
         </tr>
     </table>
-
+    <p>Calcula las energías cinéticas de ambas bolas y del conjunto, antes y después de la colisión.</p>
     <table>
         <tr>
             <th></th>
@@ -257,7 +259,8 @@
         y: canvas.height / 2,
         radius: 35,
         color: 'blue',
-        velocityX: 0
+        velocityX: 0,
+        mass: massBlue
     };
 
     const ballRed = {
@@ -265,7 +268,8 @@
         y: canvas.height / 2,
         radius: 35,
         color: 'red',
-        velocityX: 0
+        velocityX: 0,
+        mass: massRed
     };
 
     function drawBall(ball) {
@@ -274,6 +278,9 @@
         ctx.fillStyle = ball.color;
         ctx.fill();
         ctx.closePath();
+        ctx.fillStyle = 'white';
+        ctx.font = '14px Arial';
+        ctx.fillText(`${ball.mass} kg`, ball.x - 15, ball.y + 5);
     }
 
     function drawGrid() {
@@ -313,6 +320,7 @@
         }
 
         ctx.fillStyle = 'black';
+        ctx.font = '16px Arial';
         ctx.fillText(`${ballBlue.velocityX.toFixed(2)} m/s`, ballBlue.x - 20, ballBlue.y - ballBlue.radius - 10);
         ctx.fillText(`${ballRed.velocityX.toFixed(2)} m/s`, ballRed.x - 20, ballRed.y - ballRed.radius - 10);
     }
@@ -436,6 +444,8 @@
         restitution = 0; // Coeficiente de restitución fijo en 0
         updateSliders();
         updateSizes();
+        ballBlue.mass = massBlue;
+        ballRed.mass = massRed;
         ballBlue.x = 50;
         ballRed.x = 400;
         ballBlue.velocityX = 0;
