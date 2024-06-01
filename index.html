@@ -96,8 +96,8 @@
     <span id="velocity-blue-val">10</span> m/s
 
     <label for="restitution">Coeficiente de Restitución:</label>
-    <input type="range" id="restitution" min="0" max="1" step="0.01" value="1" disabled>
-    <span id="restitution-val">1</span>
+    <input type="range" id="restitution" min="0" max="1" step="0.01" value="0" disabled>
+    <span id="restitution-val">0</span>
 </div>
 
 <div id="controls">
@@ -226,7 +226,7 @@
     let massBlue = Math.floor(Math.random() * 10) + 1; // Valor aleatorio entre 1 y 10
     let massRed = Math.floor(Math.random() * 10) + 1; // Valor aleatorio entre 1 y 10
     let velocityBlue = Math.floor(Math.random() * 20) + 1; // Valor aleatorio entre 1 y 20
-    let restitution = 1; // Coeficiente de restitución fijo en 1
+    let restitution = 0; // Coeficiente de restitución fijo en 0
     let velocityRed = 0;
     let animationInterval;
     let slowMotion = false;
@@ -302,10 +302,10 @@
         ballRed.x += ballRed.velocityX;
 
         if (ballBlue.x + ballBlue.radius >= ballRed.x - ballRed.radius) {
-            const finalVelocityBlue = (massBlue * velocityBlue - massRed * velocityRed + massRed * (2 * velocityRed)) / (massBlue + massRed);
-            const finalVelocityRed = (massBlue * velocityBlue + massRed * velocityRed - massBlue * (2 * velocityRed)) / (massBlue + massRed);
-            ballBlue.velocityX = finalVelocityBlue;
-            ballRed.velocityX = finalVelocityRed;
+            const combinedMass = massBlue + massRed;
+            const newVelocity = (massBlue * velocityBlue + massRed * velocityRed) / combinedMass;
+            ballBlue.velocityX = newVelocity;
+            ballRed.velocityX = newVelocity;
         }
 
         if (ballRed.x - ballRed.radius > canvas.width) {
@@ -368,15 +368,16 @@
         const correctP_A_antes = massBlue * velocityBlue;
         const correctP_R_antes = 0;
         const correctP_T_antes = correctP_A_antes + correctP_R_antes;
-        const correctP_A_despues = massBlue * ((massBlue * velocityBlue - massRed * velocityRed + massRed * (2 * velocityRed)) / (massBlue + massRed));
-        const correctP_R_despues = massRed * ((massBlue * velocityBlue + massRed * velocityRed - massBlue * (2 * velocityRed)) / (massBlue + massRed));
+        const newVelocity = (massBlue * velocityBlue + massRed * velocityRed) / (massBlue + massRed);
+        const correctP_A_despues = massBlue * newVelocity;
+        const correctP_R_despues = massRed * newVelocity;
         const correctP_T_despues = correctP_A_despues + correctP_R_despues;
 
         const correctEC_A_antes = 0.5 * massBlue * Math.pow(velocityBlue, 2);
         const correctEC_R_antes = 0;
         const correctEC_T_antes = correctEC_A_antes + correctEC_R_antes;
-        const correctEC_A_despues = 0.5 * massBlue * Math.pow((massBlue * velocityBlue - massRed * velocityRed + massRed * (2 * velocityRed)) / (massBlue + massRed), 2);
-        const correctEC_R_despues = 0.5 * massRed * Math.pow((massBlue * velocityBlue + massRed * velocityRed - massBlue * (2 * velocityRed)) / (massBlue + massRed), 2);
+        const correctEC_A_despues = 0.5 * massBlue * Math.pow(newVelocity, 2);
+        const correctEC_R_despues = 0.5 * massRed * Math.pow(newVelocity, 2);
         const correctEC_T_despues = correctEC_A_despues + correctEC_R_despues;
 
         validateAnswer('pA-antes', pA_antes, correctP_A_antes);
@@ -395,8 +396,8 @@
         validateQuestion('q1', 'Falso');
         validateQuestion('q2', 'Verdadero');
         validateQuestion('q3', 'Falso');
-        validateQuestion('q4', 'Verdadero');
-        validateQuestion('q5', 'Elástico');
+        validateQuestion('q4', 'Falso');
+        validateQuestion('q5', 'Inelástico');
     }
 
     function validateAnswer(id, givenValue, correctValue) {
@@ -430,7 +431,7 @@
         massBlue = Math.floor(Math.random() * 10) + 1; // Valor aleatorio entre 1 y 10
         massRed = Math.floor(Math.random() * 10) + 1; // Valor aleatorio entre 1 y 10
         velocityBlue = Math.floor(Math.random() * 20) + 1; // Valor aleatorio entre 1 y 20
-        restitution = 1; // Coeficiente de restitución fijo en 1
+        restitution = 0; // Coeficiente de restitución fijo en 0
         updateSliders();
         updateSizes();
         ballBlue.x = 50;
