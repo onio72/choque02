@@ -405,7 +405,7 @@
         if (resultElement && resultElement.tagName === 'SPAN') {
             resultElement.remove();
         }
-        if (Math.abs(givenValue - correctValue) < 0.01) {
+        if (Math.abs((givenValue - correctValue) / correctValue) < 0.02) { // Tolerancia del 2%
             input.insertAdjacentHTML('afterend', ' <span class="result-ok">&#10004;</span>');
         } else {
             input.insertAdjacentHTML('afterend', ' <span class="result-ko">&#10008;</span>');
